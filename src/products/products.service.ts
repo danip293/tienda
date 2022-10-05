@@ -26,7 +26,11 @@ export class ProductsService {
    * @returns The product that was found.
    */
   async retrieve(id: string) {
-    const product = await this.productRepository.findOne(id);
+    const product = await this.productRepository.findOne({
+      where: {
+        id,
+      },
+    });
     if (!product) {
       throw new NotFoundException(`Product #${id} was not found`);
     }
@@ -64,7 +68,11 @@ export class ProductsService {
    * @returns The coffee object that was deleted.
    */
   async delete(id: string) {
-    const coffee = await this.productRepository.findOne(id);
-    return this.productRepository.remove(coffee);
+    const product = await this.productRepository.findOne({
+      where: {
+        id,
+      },
+    });
+    return this.productRepository.remove(product);
   }
 }

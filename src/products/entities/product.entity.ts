@@ -2,24 +2,24 @@ import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity() // este decorador genera la tabla sql, por default elnombre de la clase se utiliza para el npmbre de la tabla, se se quiere especificar un nombre especifico se define como parametro del decorador
 export class Product {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @Column()
-  nombre: string;
+  name: string;
 
   @Column({ unique: true })
-  sku: string;
+  upc: string;
 
   @Column({ nullable: true })
-  descripcion: string;
+  description: string;
 
   @Column({ type: 'numeric' })
-  precio_venta: number;
+  sale_price: number;
 
   @Column({ type: 'numeric' })
-  precio_compra: number;
+  purchase_price: number;
 
   @Column()
-  existencia: number;
+  stock: number;
 }

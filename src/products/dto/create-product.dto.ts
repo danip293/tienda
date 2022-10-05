@@ -2,21 +2,21 @@ import { IsNumber, IsString, IsOptional } from 'class-validator';
 
 export class CreateProductDto {
   @IsString()
-  readonly nombre: string;
+  readonly name: string;
 
   @IsString()
-  readonly sku: string;
+  readonly upc: string;
 
   @IsString()
   @IsOptional()
-  readonly descripcion: string;
+  readonly description: string;
 
   @IsNumber()
-  readonly precio_venta: number;
+  readonly sale_price: number;
 
   @IsNumber()
-  readonly precio_compra: number;
+  readonly purchase_price: number;
 
   @IsNumber()
-  readonly existencia: number;
+  readonly stock: number;
 }
