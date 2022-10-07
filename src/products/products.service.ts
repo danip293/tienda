@@ -107,9 +107,11 @@ export class ProductsService {
     return product;
   }
 
-  create(productBody) {
+  async create(productBody) {
     const { upc } = productBody;
-    const foundProduct = this.productRepository.findOne({ where: { upc } });
+    const foundProduct = await this.productRepository.findOne({
+      where: { upc },
+    });
     if (foundProduct) {
       throw new BadRequestException(`Product with upc:${upc} already exist`);
     }
