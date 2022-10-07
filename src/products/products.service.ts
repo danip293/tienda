@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
@@ -104,6 +108,12 @@ export class ProductsService {
   }
 
   create(productBody) {
+    const { upc } = productBody;
+    const foundProduct = this.productRepository.findOne({ where: { upc } });
+    if (foundProduct) {
+      throw new BadRequestException(`Product with upc:${upc} already exist`);
+    }
+
     const coffee = this.productRepository.create({
       ...productBody,
     });
