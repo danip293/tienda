@@ -30,6 +30,7 @@ import { ConfigModule } from '@nestjs/config';
       password: process.env.DATABASE_PASSWORD,
       database: process.env.DATABASE_NAME,
       autoLoadEntities: true,
+      /* A feature of TypeORM that will automatically create the database tables for you. */
       synchronize: true, // disable to production
     }),
     ProductsModule,

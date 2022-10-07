@@ -1,12 +1,5 @@
-import { exist } from '@hapi/joi';
-import {
-  Injectable,
-  HttpException,
-  HttpStatus,
-  BadRequestException,
-} from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Product } from 'src/products/entities/product.entity';
 import { ProductsService } from 'src/products/products.service';
 import { Repository } from 'typeorm';
 import { CreateOrderDto } from './dto/create-order.dto';
@@ -28,7 +21,7 @@ export class OrdersService {
     products.forEach(({ id, quantity }) => {
       groupedProducts[id] = (groupedProducts[id] || 0) + quantity;
     });
-    // example { 87ebb4f9-0aae-4f87-b2fc-078b7d36c43f : 10 }
+    // group al products by uuid -> quantity example { 87ebb4f9-0aae-4f87-b2fc-078b7d36c43f : 10 }
 
     // ensure all products exist
     const founProducts = await Promise.all(
@@ -44,9 +37,10 @@ export class OrdersService {
     // validate product stock
     founProducts.forEach((product) => {
       const currentProductOrderQuantity: number = groupedProducts[product.id];
+      // validate quantity
       if (currentProductOrderQuantity === 0) {
         throw new BadRequestException(
-          `the quantity fot #${product.id} product must be greater than 0`,
+          `the quantity for #${product.id} product must be greater than 0`,
         );
       }
       // if the product dont have enough stock throw an error
@@ -57,6 +51,7 @@ export class OrdersService {
       } else {
         const salePrice = product.sale_price * ((100 - discount) / 100);
         const total = salePrice * currentProductOrderQuantity;
+        // create the order instance
         const orderDetail = new OrderDetail();
         orderDetail.total = total;
         orderDetail.product = product;
@@ -90,7 +85,7 @@ export class OrdersService {
 
   list() {
     return this.orderRepository.find({
-      relations: { concepts: true },
+      relations: { concepts: { product: true } },
     });
   }
 }

@@ -10,7 +10,9 @@ import { tap, map } from 'rxjs/operators';
 @Injectable()
 export class WrapResponseInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
-    console.log('Before...');
+    const ctx = context.switchToHttp();
+    const response = ctx.getResponse<Response>();
+    console.log('response...', response);
     return next.handle().pipe(map((data) => ({ data })));
   }
 }
