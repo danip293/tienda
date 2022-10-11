@@ -8,7 +8,6 @@ export class CreateProductDto {
   readonly upc: string;
 
   @IsString()
-  @IsOptional()
   readonly description: string;
 
   @IsNumber()
