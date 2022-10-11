@@ -1,10 +1,11 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProductsService } from 'src/products/products.service';
-import { Repository } from 'typeorm';
+import { Repository, Connection } from 'typeorm';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { Order } from './entities/order.entitiy';
 import { OrderDetail } from './entities/orderDetail.entity';
+import { OrderQueryDto } from './dto/order-query.dto';
 
 @Injectable()
 export class OrdersService {
@@ -12,6 +13,7 @@ export class OrdersService {
     @InjectRepository(Order)
     private readonly orderRepository: Repository<Order>,
     private readonly productService: ProductsService,
+    private readonly connection: Connection,
   ) {}
 
   async createOrder(orderBody: CreateOrderDto) {
@@ -51,6 +53,8 @@ export class OrdersService {
       } else {
         const salePrice = product.sale_price * ((100 - discount) / 100);
         const total = salePrice * currentProductOrderQuantity;
+        // discount stock to product
+        product.stock -= currentProductOrderQuantity;
         // create the order instance
         const orderDetail = new OrderDetail();
         orderDetail.total = total;
@@ -67,10 +71,6 @@ export class OrdersService {
         totalSale += total;
         totalProductsCount += currentProductOrderQuantity;
         productList.push(orderDetail);
-
-        // rest stock to product
-        product.stock -= currentProductOrderQuantity;
-        this.productService.update(product.id, product);
       }
     });
 
@@ -79,13 +79,33 @@ export class OrdersService {
     order.total_products = totalProductsCount;
     order.concepts = productList;
 
-    const o = this.orderRepository.create(order);
-    return this.orderRepository.save(o);
+    const queryRunner = this.connection.createQueryRunner();
+
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      // save order
+      const o = await queryRunner.manager.save(order);
+      // save the products discount for stock
+      await Promise.all(
+        o.concepts.map((orderD) => queryRunner.manager.save(orderD.product)),
+      );
+      await queryRunner.commitTransaction();
+      return o;
+    } catch (e) {
+      await queryRunner.rollbackTransaction();
+    } finally {
+      await queryRunner.release();
+    }
   }
 
-  list() {
+  list(orderQuery: OrderQueryDto) {
+    const { limit, offset } = orderQuery;
     return this.orderRepository.find({
-      relations: { concepts: { product: true } },
+      relations: ['concepts'],
+      take: limit,
+      skip: offset - 1,
     });
   }
 }
