@@ -4,7 +4,6 @@ import {
   IsPositive,
   IsString,
   IsIn,
-  ValidateIf,
 } from 'class-validator';
 export class FilterQueryDto {
   @IsOptional()

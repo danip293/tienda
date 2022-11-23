@@ -9,11 +9,15 @@ import { ProductsService } from './products.service';
 
 // Entities
 import { Product } from './entities/product.entity';
+// import { Content, Photo, Post, Question } from './entities/sobrecarga';
+import { ProductRepository } from './products.repository';
+import { AuditRepository } from './audit.repository';
+import { EntitySubcriber } from './entity.subscriber';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Product])],
+  imports: [TypeOrmModule.forFeature([ProductRepository, AuditRepository])],
   controllers: [ProductsController],
-  providers: [ProductsService],
+  providers: [ProductsService, EntitySubcriber],
   exports: [ProductsService],
 })
 export class ProductsModule {}

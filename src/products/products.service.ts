@@ -8,6 +8,7 @@ import { Repository } from 'typeorm';
 
 // Entities
 import { Product } from './entities/product.entity';
+import { ProductRepository } from './products.repository';
 
 // Dto
 import { FilterQueryDto } from './dto/filter-query.dto';
@@ -15,8 +16,8 @@ import { FilterQueryDto } from './dto/filter-query.dto';
 @Injectable()
 export class ProductsService {
   constructor(
-    @InjectRepository(Product)
-    private readonly productRepository: Repository<Product>,
+    @InjectRepository(ProductRepository)
+    private readonly productRepository: ProductRepository,
   ) {}
 
   /**
@@ -131,13 +132,15 @@ export class ProductsService {
    */
   async update(id: string, productBody) {
     const product = await this.productRepository.preload({
-      id: +id,
+      id,
       ...productBody,
     });
+
     if (!product) {
       throw new NotFoundException(`Product #${id} was not found`);
     }
-    return this.productRepository.save(product);
+    const res = await this.productRepository.save(product);
+    return res;
   }
 
   /**
@@ -146,11 +149,7 @@ export class ProductsService {
    * @returns The coffee object that was deleted.
    */
   async delete(id: string) {
-    const product = await this.productRepository.findOne({
-      where: {
-        id,
-      },
-    });
-    return this.productRepository.remove(product);
+    const product = await this.productRepository.findOne(id);
+    return await this.productRepository.remove(product);
   }
 }

@@ -1,3 +1,4 @@
+import { IsNumber } from 'class-validator';
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity() // este decorador genera la tabla sql, por default elnombre de la clase se utiliza para el npmbre de la tabla, se se quiere especificar un nombre especifico se define como parametro del decorador
@@ -11,7 +12,7 @@ export class Product {
   @Column({ unique: true })
   upc: string;
 
-  @Column({ nullable: true })
+  @Column()
   description: string;
 
   @Column({ type: 'numeric' })
