@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable, BadRequestException, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProductsService } from 'src/products/products.service';
 import { Repository, Connection } from 'typeorm';
@@ -6,6 +6,8 @@ import { CreateOrderDto } from './dto/create-order.dto';
 import { Order } from './entities/order.entitiy';
 import { OrderDetail } from './entities/orderDetail.entity';
 import { OrderQueryDto } from './dto/order-query.dto';
+import { DISCOUNTS, CURRENCY } from './constants';
+import { DiscountServiceInterface } from 'src/discounts/interface/DiscountServiceInterface';
 
 @Injectable()
 export class OrdersService {
@@ -14,13 +16,16 @@ export class OrdersService {
     private readonly orderRepository: Repository<Order>,
     private readonly productService: ProductsService,
     private readonly connection: Connection,
+    @Inject(DISCOUNTS)
+    private readonly percentagediscountService: DiscountServiceInterface,
+    @Inject(CURRENCY)
+    private readonly currencydiscountService: DiscountServiceInterface,
   ) {}
 
   async createOrder(orderBody: CreateOrderDto) {
-    const { products, discount } = orderBody;
     const groupedProducts = {};
 
-    products.forEach(({ id, quantity }) => {
+    orderBody.products.forEach(({ id, quantity }) => {
       groupedProducts[id] = (groupedProducts[id] || 0) + quantity;
     });
     // group al products by uuid -> quantity example { 87ebb4f9-0aae-4f87-b2fc-078b7d36c43f : 10 }
@@ -31,10 +36,6 @@ export class OrdersService {
         this.productService.retrieve(id),
       ),
     );
-
-    let totalSale = 0;
-    let totalProductsCount = 0;
-    const productList: OrderDetail[] = [];
 
     // validate product stock
     founProducts.forEach((product) => {
@@ -50,34 +51,19 @@ export class OrdersService {
         throw new BadRequestException(
           `there is not enough stock for #${product.id} product`,
         );
-      } else {
-        const salePrice = product.sale_price * ((100 - discount) / 100);
-        const total = salePrice * currentProductOrderQuantity;
-        // discount stock to product
-        product.stock -= currentProductOrderQuantity;
-        // create the order instance
-        const orderDetail = new OrderDetail();
-        orderDetail.total = total;
-        orderDetail.product = product;
-        orderDetail.quantity = currentProductOrderQuantity;
-        orderDetail.product_discount = discount;
-        orderDetail.product_price = product.sale_price;
-        orderDetail.product_purchase_price = product.purchase_price;
-        orderDetail.product_description = product.description;
-        orderDetail.utility = Math.floor(
-          ((salePrice - product.purchase_price) / salePrice) * 100,
-        );
-        // calculate total concept
-        totalSale += total;
-        totalProductsCount += currentProductOrderQuantity;
-        productList.push(orderDetail);
       }
     });
 
-    const order = new Order();
-    order.total = totalSale;
-    order.total_products = totalProductsCount;
-    order.concepts = productList;
+    const factory =
+      typeof orderBody.discount === 'string'
+        ? this.percentagediscountService
+        : this.currencydiscountService;
+    const order = factory.apply(
+      orderBody,
+      founProducts,
+      groupedProducts,
+      orderBody.discount,
+    );
 
     const queryRunner = this.connection.createQueryRunner();
 

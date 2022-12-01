@@ -23,6 +23,6 @@ export class CreateOrderDto {
   products: ProductOrderDto[];
 
   @ValidateIf((o) => o.discount)
-  @IsIn(availableDiscounts)
-  discount?: number = 0;
+  // @IsIn(availableDiscounts)
+  discount?: number | string = 0;
 }
