@@ -13,14 +13,14 @@ import { ProductsService } from './products.service';
 
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { FilterQueryDto } from './dto/filter-query.dto';
+import { FilterQueryProductDto } from './dto/filter-query.product';
 
 @Controller('products')
 export class ProductsController {
   constructor(private readonly productService: ProductsService) {}
 
   @Get()
-  findAll(@Query() paginationQuery: FilterQueryDto) {
+  findAll(@Query() paginationQuery: FilterQueryProductDto) {
     return this.productService.list(paginationQuery);
   }
 
