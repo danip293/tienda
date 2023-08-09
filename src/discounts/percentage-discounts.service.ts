@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Order } from 'src/orders/entities/order.entitiy';
+import { Order } from 'src/orders/entities/order.entity';
 import { CreateOrderDto } from 'src/orders/dto/create-order.dto';
 import { OrderDetail } from 'src/orders/entities/orderDetail.entity';
 import { DiscountServiceInterface } from './interface/DiscountServiceInterface';

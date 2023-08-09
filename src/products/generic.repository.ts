@@ -1,11 +1,26 @@
-import { Repository, SelectQueryBuilder } from 'typeorm';
+import {
+  Connection,
+  DeepPartial,
+  Repository,
+  SelectQueryBuilder,
+} from 'typeorm';
 import { FilterQueryProductDto } from './dto/filter-query.product';
 
 // type queryCb<T> = (query: SelectQueryBuilder<T>) => SelectQueryBuilder<T>;
 
 export class GenericRepository<T> extends Repository<T> {
+  // constructor(private readonly connection?: Connection) {
+  //   super();
+  // }
   async getEntity(id: number): Promise<T> {
     return await this.findOne(id);
+  }
+
+  async createEntity(body: DeepPartial<T>) {
+    // todo check this
+    const entity = this.create({ ...body });
+
+    super.save(body);
   }
 
   async getEntities(
@@ -76,4 +91,10 @@ export class GenericRepository<T> extends Repository<T> {
 
     return queryBuilder.getManyAndCount();
   }
+
+  // async startTransaction() {
+  //   const queryRunner = this.connection.createQueryRunner();
+  //   await queryRunner.connect();
+  //   await queryRunner.startTransaction();
+  // }
 }

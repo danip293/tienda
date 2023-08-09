@@ -6,7 +6,7 @@ import { PercentageDiscountsService } from '../discounts/percentage-discounts.se
 import { CurrencyDiscountsService } from '../discounts/currency-discount.service';
 import { DiscountServiceInterface } from 'src/discounts/interface/DiscountServiceInterface';
 
-import { Order } from './entities/order.entitiy';
+import { Order } from './entities/order.entity';
 import { OrderDetail } from './entities/orderDetail.entity';
 import { OrdersController } from './orders.controller';
 import { OrdersService } from './orders.service';
@@ -14,7 +14,7 @@ import { DISCOUNTS, CURRENCY } from './constants';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Order, OrderDetail]),
+    TypeOrmModule.forFeature([OrderDetail, Order]),
     ProductsModule,
     DiscountsModule,
   ],

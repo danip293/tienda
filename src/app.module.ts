@@ -10,8 +10,10 @@ import { AppService } from './app.service';
 
 // Modules
 import { ProductsModule } from './products/products.module';
-import { OrdersModule } from './orders/orders.module';
 import { ConfigModule } from '@nestjs/config';
+// import { OrdersModule } from './orders/orders.module';
+// import { DiscountsModule } from './discounts/discounts.module';
+// import { CategoriesModule } from './categories/categories.module';
 
 @Module({
   imports: [
@@ -32,9 +34,13 @@ import { ConfigModule } from '@nestjs/config';
       autoLoadEntities: true,
       /* A feature of TypeORM that will automatically create the database tables for you. */
       synchronize: true, // disable to production
+      entities: ['dist/**/*.entity.{js,ts}'],
+      // subscribers: ['dist/**/*.subscriber.{js,ts}'],
     }),
     ProductsModule,
-    OrdersModule,
+    // CategoriesModule,
+    // OrdersModule,
+    // DiscountsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,4 +1,4 @@
-import { Order } from 'src/orders/entities/order.entitiy';
+import { Order } from 'src/orders/entities/order.entity';
 import { CreateOrderDto } from 'src/orders/dto/create-order.dto';
 
 export interface DiscountServiceInterface {
