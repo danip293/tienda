@@ -14,6 +14,7 @@ import { ConfigModule } from '@nestjs/config';
 // import { OrdersModule } from './orders/orders.module';
 // import { DiscountsModule } from './discounts/discounts.module';
 // import { CategoriesModule } from './categories/categories.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -23,6 +24,9 @@ import { ConfigModule } from '@nestjs/config';
         DATABASE_USERNAME: Joi.required(),
         DATABASE_PASSWORD: Joi.required(),
         DATABASE_PORT: Joi.number().default(5432),
+        // jwt
+        JWT_SECRET: Joi.string().required(),
+        JWT_EXPIRATION_TIME: Joi.string().required(),
       }),
     }),
     TypeOrmModule.forRoot({
@@ -38,6 +42,7 @@ import { ConfigModule } from '@nestjs/config';
       // subscribers: ['dist/**/*.subscriber.{js,ts}'],
     }),
     ProductsModule,
+    AuthModule,
     // CategoriesModule,
     // OrdersModule,
     // DiscountsModule,
