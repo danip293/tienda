@@ -1,12 +1,13 @@
 import * as bcrypt from 'bcrypt';
 import { UsersService } from './users.service';
-import { HttpException, HttpStatus, Logger } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { PostgresErrorCode } from 'src/common/constants/postgres-errors';
 import { CreateUserDto } from '../dto/create-user.dto';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { TokenPayload } from '../token-payload.interface';
 
+@Injectable()
 export class AuthenticationService {
   private logger = new Logger(this.constructor.name);
   constructor(

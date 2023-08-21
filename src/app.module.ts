@@ -39,7 +39,8 @@ import { AuthModule } from './auth/auth.module';
       /* A feature of TypeORM that will automatically create the database tables for you. */
       synchronize: true, // disable to production
       entities: ['dist/**/*.entity.{js,ts}'],
-      // subscribers: ['dist/**/*.subscriber.{js,ts}'],
+      // subscribers: ['d782052ist/**/*.subscriber.{js,ts}'],
+      logging: 'all',
     }),
     ProductsModule,
     AuthModule,
