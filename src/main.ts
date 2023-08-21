@@ -1,17 +1,14 @@
 import { NestFactory, HttpAdapterHost } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
-import {
-  // HttpExceptionFilter,
-  AllExceptionsFilter,
-} from './common/filters';
+import { HttpExceptionFilter, AllExceptionsFilter } from './common/filters';
 import { WrapResponseInterceptor } from './common/interceptors/wrap-response.interceptor';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  const httpAdapter = app.get(HttpAdapterHost);
+  // const httpAdapter = app.get(HttpAdapterHost);
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -23,11 +20,11 @@ async function bootstrap() {
     }),
   );
 
-  app.useGlobalFilters(
-    // new HttpExceptionFilter(),
-    new AllExceptionsFilter(httpAdapter),
-  );
-  app.useGlobalInterceptors(new WrapResponseInterceptor());
+  // app.useGlobalFilters(
+  //   new HttpExceptionFilter(),
+  //   new AllExceptionsFilter(httpAdapter),
+  // );
+  // app.useGlobalInterceptors(new WrapResponseInterceptor());
 
   // swagger config
   const options = new DocumentBuilder()

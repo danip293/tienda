@@ -1,13 +1,14 @@
-import bcrypt from 'bcrypt';
+import * as bcrypt from 'bcrypt';
 import { UsersService } from './users.service';
-import { HttpException, HttpStatus } from '@nestjs/common';
+import { HttpException, HttpStatus, Logger } from '@nestjs/common';
 import { PostgresErrorCode } from 'src/common/constants/postgres-errors';
-import { CreateUserDto } from './dto/create-user.dto';
+import { CreateUserDto } from '../dto/create-user.dto';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { TokenPayload } from './token-payload.interface';
+import { TokenPayload } from '../token-payload.interface';
 
 export class AuthenticationService {
+  private logger = new Logger(this.constructor.name);
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
@@ -15,15 +16,19 @@ export class AuthenticationService {
   ) {}
 
   public async register(registrationData: CreateUserDto) {
+    this.logger.log({ registrationData });
     const hashedPassword = await bcrypt.hash(registrationData.password, 10);
+    this.logger.verbose({ hashedPassword });
     try {
       const createdUser = await this.usersService.create({
         ...registrationData,
         password: hashedPassword,
       });
       createdUser.password = undefined;
+      this.logger.verbose(createdUser);
       return createdUser;
     } catch (error) {
+      this.logger.error(error);
       if (error?.code === PostgresErrorCode.UniqueViolation) {
         throw new HttpException(
           'User with that email already exists',
@@ -72,5 +77,9 @@ export class AuthenticationService {
     return `Authentication=${token}; HttpOnly; Path=/; Max-Age=${this.configService.get(
       'JWT_EXPIRATION_TIME',
     )}`;
+  }
+
+  public getCookieForLogOut() {
+    return `Authentication=; HttpOnly; Path=/; Max-Age=0`;
   }
 }
