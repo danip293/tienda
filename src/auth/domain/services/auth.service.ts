@@ -2,10 +2,10 @@ import * as bcrypt from 'bcrypt';
 import { UsersService } from './users.service';
 import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { PostgresErrorCode } from 'src/common/constants/postgres-errors';
-import { CreateUserDto } from '../dto/create-user.dto';
+import { CreateUserDto } from '../../dto/create-user.dto';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { TokenPayload } from '../token-payload.interface';
+import { TokenPayload } from '../../token-payload.interface';
 
 @Injectable()
 export class AuthenticationService {
@@ -17,7 +17,6 @@ export class AuthenticationService {
   ) {}
 
   public async register(registrationData: CreateUserDto) {
-    this.logger.log({ registrationData });
     const hashedPassword = await bcrypt.hash(registrationData.password, 10);
     this.logger.verbose({ hashedPassword });
     try {

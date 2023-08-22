@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import * as Joi from '@hapi/joi';
 
@@ -10,11 +10,13 @@ import { AppService } from './app.service';
 
 // Modules
 import { ProductsModule } from './products/products.module';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 // import { OrdersModule } from './orders/orders.module';
 // import { DiscountsModule } from './discounts/discounts.module';
 // import { CategoriesModule } from './categories/categories.module';
 import { AuthModule } from './auth/auth.module';
+import LogsMiddleware from './common/middlewares/registros.middleware';
+import DatabaseLogger from './common/database.logger';
 
 @Module({
   imports: [
@@ -25,22 +27,30 @@ import { AuthModule } from './auth/auth.module';
         DATABASE_PASSWORD: Joi.required(),
         DATABASE_PORT: Joi.number().default(5432),
         // jwt
-        JWT_SECRET: Joi.string().required(),
-        JWT_EXPIRATION_TIME: Joi.string().required(),
+        JWT_ACCESS_TOKEN_SECRET: Joi.string().required(),
+        JWT_ACCESS_TOKEN_EXPIRATION_TIME: Joi.string().required(),
+        JWT_REFRESH_TOKEN_SECRET: Joi.string().required(),
+        JWT_REFRESH_TOKEN_EXPIRATION_TIME: Joi.string().required(),
       }),
     }),
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      port: +process.env.DATABASE_PORT,
-      username: process.env.DATABASE_USERNAME,
-      password: process.env.DATABASE_PASSWORD,
-      database: process.env.DATABASE_NAME,
-      autoLoadEntities: true,
-      /* A feature of TypeORM that will automatically create the database tables for you. */
-      synchronize: true, // disable to production
-      entities: ['dist/**/*.entity.{js,ts}'],
-      // subscribers: ['d782052ist/**/*.subscriber.{js,ts}'],
-      logging: 'all',
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        type: 'postgres',
+        logger: new DatabaseLogger(),
+        host: configService.get('POSTGRES_HOST'),
+        port: configService.get('DATABASE_PORT'),
+        username: configService.get('DATABASE_USERNAME'),
+        password: configService.get('DATABASE_PASSWORD'),
+        database: configService.get('DATABASE_NAME'),
+        autoLoadEntities: true,
+        /* A feature of TypeORM that will automatically create the database tables for you. */
+        synchronize: true, // disable to production
+        entities: ['dist/**/*.entity.{js,ts}'],
+        // subscribers: ['d782052ist/**/*.subscriber.{js,ts}'],
+        logging: 'all',
+      }),
     }),
     ProductsModule,
     AuthModule,
@@ -51,4 +61,8 @@ import { AuthModule } from './auth/auth.module';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(LogsMiddleware).forRoutes('*');
+  }
+}
