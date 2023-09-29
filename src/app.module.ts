@@ -16,7 +16,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 // import { CategoriesModule } from './categories/categories.module';
 import { AuthModule } from './auth/auth.module';
 import LogsMiddleware from './common/middlewares/registros.middleware';
-import DatabaseLogger from './common/database.logger';
+// import DatabaseLogger from './common/database.logger';
 
 @Module({
   imports: [
@@ -38,7 +38,7 @@ import DatabaseLogger from './common/database.logger';
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
         type: 'postgres',
-        logger: new DatabaseLogger(),
+        // logger: new DatabaseLogger(),
         host: configService.get('POSTGRES_HOST'),
         port: configService.get('DATABASE_PORT'),
         username: configService.get('DATABASE_USERNAME'),
