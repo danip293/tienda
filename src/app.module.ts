@@ -16,6 +16,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 // import { CategoriesModule } from './categories/categories.module';
 import { AuthModule } from './auth/auth.module';
 import LogsMiddleware from './common/middlewares/registros.middleware';
+import { ChatModule } from './chat/chat.module';
 // import DatabaseLogger from './common/database.logger';
 
 @Module({
@@ -54,6 +55,7 @@ import LogsMiddleware from './common/middlewares/registros.middleware';
     }),
     ProductsModule,
     AuthModule,
+    ChatModule,
     // CategoriesModule,
     // OrdersModule,
     // DiscountsModule,

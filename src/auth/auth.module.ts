@@ -28,6 +28,6 @@ import { JwtStrategy } from './domain/strategies/jwt.strategy';
   ],
   controllers: [AuthController],
   providers: [AuthenticationService, UsersService, LocalStrategy, JwtStrategy],
-  exports: [TypeOrmModule],
+  exports: [TypeOrmModule, AuthenticationService],
 })
 export class AuthModule {}
